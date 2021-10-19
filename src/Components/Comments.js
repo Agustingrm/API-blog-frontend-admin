@@ -1,12 +1,12 @@
 import { useHistory } from "react-router-dom";
 
-function Posts(props) {
-  const { _id, author, title, content, time } = props.post;
+function Comments(props) {
+  const { _id, post ,username, content } = props.comment;
   const history = useHistory();
 
   const handleClickDelete = (e) => {
-    console.log("https://agustingrm-blog-api.herokuapp.com/posts/delete/" + _id + "/");
-    fetch("https://agustingrm-blog-api.herokuapp.com/posts/" + _id, {
+    console.log("https://agustingrm-blog-api.herokuapp.com/comments/" + _id + "/");
+    fetch("https://agustingrm-blog-api.herokuapp.com/comments/" + _id, {
       method: "DELETE",
       headers: {
         "content-type": "application/json",
@@ -16,7 +16,7 @@ function Posts(props) {
       .then(
         (result) => {
           console.log(result);
-          history.push("/home");
+          history.push("/home/"+post);
         },
         (error) => {
           console.log(error);
@@ -25,20 +25,15 @@ function Posts(props) {
     e.preventDefault();
   };
 
-  const handleClickUpdate = (e) => {
-    history.push("/home/"+_id);
-  };
+    console.log('asd')
 
   return (
     <div>
-      <p>Author: {author} </p>
-      <p>formatedDate: {time} </p>
-      <p>Title: {title} </p>
+      <p>Username: {username} </p>
       <p>Content: {content} </p>
       <button onClick={handleClickDelete}>Delete</button>
-      <button onClick={handleClickUpdate}>Update</button>
     </div>
   );
 }
 
-export default Posts;
+export default Comments;

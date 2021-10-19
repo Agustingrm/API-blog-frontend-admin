@@ -1,17 +1,27 @@
-import { useState, useContext } from "react";
+import { useState, } from "react";
 import { Link, useHistory } from "react-router-dom";
-import blogContext from "../Context/blogContext";
+import jwt_decode from "jwt-decode";
 
 function NewPost() {
-  const context = useContext(blogContext);
   const history = useHistory();
-  const [form, setForm] = useState({ title: "", content: "" });
+  const decodeToken = () => {
+    if (localStorage.getItem("token")) {
+      let decoded = jwt_decode(localStorage.getItem("token"));
+      return decoded.username;
+    } else {
+      history.push("/");
+      return "";
+    }
+  };
+  let author = decodeToken();
+  const [form, setForm] = useState({ author: author, title: "", content: "" });
 
   const handleSubmit = (e) => {
     console.log(JSON.stringify(form));
     fetch("https://agustingrm-blog-api.herokuapp.com/posts/", {
       method: "POST",
       headers: {
+        Accept: "application/json",
         "content-type": "application/json",
       },
       body: JSON.stringify(form),
@@ -19,7 +29,8 @@ function NewPost() {
       .then((res) => res.json())
       .then(
         (result) => {
-          history.push("/");
+          console.log(result);
+          history.push("/home");
         },
         (error) => {
           console.log(error);
@@ -34,23 +45,19 @@ function NewPost() {
     setForm({ ...form, [name]: value });
   };
 
-  if (Date.now() - context.loginTime > 7200000 || context.loginTime === undefined) {
-    return history.push("/");
-  } else {
-    return (
-      <div>
-        <h1>New Post</h1>
-        <form onSubmit={handleSubmit}>
-          <label>Post Title</label>
-          <input type="text" label="title" name="title" value={form.title} onChange={handleChange} />
-          <label>Post Content</label>
-          <input type="text" label="content" name="content" value={form.content} onChange={handleChange} />
-          <input type="submit" />
-        </form>
-        <Link to="/home">Back to Home</Link>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <h1>New Post</h1>
+      <form onSubmit={handleSubmit}>
+        <label>Post Title</label>
+        <input type="text" label="title" name="title" value={form.title} onChange={handleChange} />
+        <label>Post Content</label>
+        <input type="text" label="content" name="content" value={form.content} onChange={handleChange} />
+        <input type="submit" />
+      </form>
+      <Link to="/home">Back to Home</Link>
+    </div>
+  );
 }
 
 export default NewPost;

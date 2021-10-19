@@ -7,7 +7,7 @@ function GlobalState({ children }) {
 
   const loginUser = (token) => {
     // setUserLogin(true);
-    //Passport cookie last two hours, 7200000 miliseconds
+    //Token lasts for 2 hours, 7200000
     localStorage.setItem("date", Date.now());
   };
 

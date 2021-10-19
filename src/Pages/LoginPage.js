@@ -1,32 +1,33 @@
 import { useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import Loading from "../Components/Loading";
 import blogContext from "../Context/blogContext";
 
 function LoginPage() {
   const context = useContext(blogContext);
   const history = useHistory();
-  const [form, setForm] = useState({ username: "", password: "" });
-  // eslint-disable-next-line no-unused-vars
+  const [form, setForm] = useState({ username: "", password: ""});
   const [loading, setLoading] = useState(false);
+
+  console.log("loading: " + loading);
+
   const handleSubmit = (e) => {
     console.log(JSON.stringify(form));
+
     setLoading(true);
     fetch("https://agustingrm-blog-api.herokuapp.com/users/login/", {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        // 'x-access-token':localStorage.getItem("token")
       },
       body: JSON.stringify(form),
     })
       .then((res) => res.json())
       .then(
         (result) => {
-          context.loginUser(result.token);
           console.log(result);
-          history.push("/");
-          setLoading(false);
+          localStorage.setItem('token',result.token)
+          context.loginUser()
+          history.push("/home");
         },
         (error) => {
           console.log(error);
@@ -41,8 +42,6 @@ function LoginPage() {
     const value = event.target.value;
     setForm({ ...form, [name]: value });
   };
-  //Token last for 2 hours, so we force to log in again here
-  if (Date.now() - context.loginTime > 7200000 || context.loginTime === undefined ) {
     return (
       <form onSubmit={handleSubmit}>
         <label>Username</label>
@@ -52,10 +51,6 @@ function LoginPage() {
         <input type="submit" />
       </form>
     );
-  } else {
-    history.push("/home")
-    return <Loading />;
-  }
 }
 
 export default LoginPage;
