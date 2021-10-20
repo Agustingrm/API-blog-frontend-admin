@@ -10,6 +10,7 @@ function Posts(props) {
       method: "DELETE",
       headers: {
         "content-type": "application/json",
+        'x-access-token':localStorage.getItem("token"),
       },
     })
       .then((res) => res.json())

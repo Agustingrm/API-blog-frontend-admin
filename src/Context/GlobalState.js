@@ -1,24 +1,25 @@
 import React, { useState } from "react";
 import blogContext from "./blogContext";
+import jwt_decode from "jwt-decode";
 
 function GlobalState({ children }) {
-  // const [userLogin, setUserLogin] = useState(false);
-  const [loginTime, setLoginTime] = useState(localStorage.getItem("date"));
+  const [expiredToken, setExpiredToken] = useState(true);
 
-  const loginUser = (token) => {
-    // setUserLogin(true);
-    //Token lasts for 2 hours, 7200000
-    localStorage.setItem("date", Date.now());
+  const tokenExp = () => {
+    if (localStorage.getItem("token")) {
+      let decoded = jwt_decode(localStorage.getItem("token"));
+      console.log(Date.now());
+      if (decoded.exp - Date.now() / 1000 > 0) {
+        localStorage.setItem("login",true);
+        setExpiredToken(false);
+      } else {
+        localStorage.setItem("login",false);
+        setExpiredToken(true);
+      }
+    }
   };
 
-  const logoutUser = () => {
-    // setUserLogin(false);
-    localStorage.removeItem("date");
-  };
-
-  return (
-    <blogContext.Provider value={{loginUser, logoutUser, loginTime, setLoginTime }}>{children}</blogContext.Provider>
-  );
+  return <blogContext.Provider value={{ expiredToken, setExpiredToken, tokenExp }}>{children}</blogContext.Provider>;
 }
 
 export default GlobalState;

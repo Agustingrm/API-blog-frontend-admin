@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import Loading from "../Components/Loading";
 import Comments from "../Components/Comments";
+import blogContext from "../Context/blogContext";
 
 function UpdatePost(e) {
   const urlId = e.match.params.id;
+  const context = useContext(blogContext);
   const history = useHistory();
   const [loading, setLoading] = useState(true);
   const [loadingComments, setLoadingComments] = useState(true);
@@ -41,19 +43,18 @@ function UpdatePost(e) {
   const [form, setForm] = useState({ author: author, title: data.title, content: data.content });
 
   const handleSubmit = (e) => {
-    console.log(JSON.stringify(form));
     fetch("https://agustingrm-blog-api.herokuapp.com/posts/esp/" + urlId + "/", {
       method: "PUT",
       headers: {
         Accept: "application/json",
         "content-type": "application/json",
+        "x-access-token": localStorage.getItem("token"),
       },
       body: JSON.stringify(form),
     })
       .then((res) => res.json())
       .then(
         (result) => {
-          console.log(result);
           history.push("/home");
         },
         (error) => {
@@ -70,7 +71,6 @@ function UpdatePost(e) {
       let commentsAccu = [];
       for (let i = 0; i < data.length; i++) {
         if (data[i].post === urlId) {
-          console.log(data[i]);
           commentsAccu.push(data[i]);
         }
       }
@@ -87,7 +87,14 @@ function UpdatePost(e) {
 
   useEffect(() => {
     getPostComments();
-  }, [loadingComments, commentsArray]);
+  }, [loadingComments]);
+
+  useEffect(() => {
+    context.tokenExp();
+    if (context.expiredToken) {
+      history.push("/");
+    }
+  }, []);
 
   const handleChange = (event) => {
     const name = event.target.name;
@@ -103,7 +110,7 @@ function UpdatePost(e) {
           <label>Post Title</label>
           <input type="text" label="title" name="title" value={form.title} onChange={handleChange} />
           <label>Post Content</label>
-          <input type="text" label="content" name="content" value={form.content} onChange={handleChange} />
+          <textarea type="text" label="content" name="content" value={form.content} onChange={handleChange}></textarea>
           <input type="submit" />
         </form>
         {commentsArray.map((comment) => (

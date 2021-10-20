@@ -10,6 +10,7 @@ function Comments(props) {
       method: "DELETE",
       headers: {
         "content-type": "application/json",
+        "x-access-token": localStorage.getItem("token"),
       },
     })
       .then((res) => res.json())
@@ -25,12 +26,10 @@ function Comments(props) {
     e.preventDefault();
   };
 
-    console.log('asd')
-
   return (
     <div>
       <p>Username: {username} </p>
-      <p>Content: {content} </p>
+      <p>Comment: {content} </p>
       <button onClick={handleClickDelete}>Delete</button>
     </div>
   );

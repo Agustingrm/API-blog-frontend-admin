@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import Posts from "../Components/Posts";
+import blogContext from "../Context/blogContext";
 
 function HomePage() {
   const history = useHistory();
+  const context = useContext(blogContext);
   const [posts, setPosts] = useState([]);
   const getPosts = async () => {
     try {
@@ -18,9 +20,16 @@ function HomePage() {
     getPosts();
   }, []);
 
+  useEffect(() => {
+    context.tokenExp();
+    if (context.expiredToken) {
+      history.push("/");
+    }
+  }, []);
+
   const handleSubmitLogout = (e) => {
-    localStorage.setItem("token", '');
-    localStorage.setItem("date", '');
+    localStorage.setItem("token", "");
+    localStorage.setItem("date", "");
     history.push("/");
   };
 
